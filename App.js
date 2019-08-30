@@ -1,14 +1,18 @@
 import React from "react";
-import { Platform, Alert } from "react-native";
+import { Platform } from "react-native";
 import Constants from "expo-constants";
 import * as Location from "expo-location";
 import * as Permissions from "expo-permissions";
+import axios from "axios";
+
 import Loading from "./Loading";
+import { api_key, units } from "./key.json";
 
 export default class App extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
+      weather: null,
       latitude: null,
       longitude: null,
       errorMessage: null
@@ -16,6 +20,7 @@ export default class App extends React.Component {
 
     this._requestPermissons = this._requestPermissons.bind(this);
     this._getCurrentPosition = this._getCurrentPosition.bind(this);
+    this._getWeather = this._getWeather.bind(this);
   }
 
   _requestPermissons = async () => {
@@ -37,14 +42,38 @@ export default class App extends React.Component {
     this.setState({ latitude, longitude });
   };
 
-  componentDidMount() {
+  _getWeather = async () => {
+    try {
+      axios
+        .get(
+          `http://api.openweathermap.org/data/2.5/weather?lat=${this.state.latitude}&lon=${this.state.longitude}&APPID=${api_key}&units=${units}`
+        )
+        .then(
+          ({
+            data: {
+              weather: [{ description: weather }],
+              main: { temp, humidity, temp_min, temp_max }
+            }
+          }) => {
+            console.log(
+              `${weather}, ${temp}, ${humidity}, ${temp_min}, ${temp_max}`
+            );
+          }
+        );
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  async componentDidMount() {
     if (Platform.OS === "android" && !Constants.isDevice) {
       this.setState({
         errorMessage:
           "Oops, this will not work on Sketch in an Android emulator. Try it on your device!"
       });
     } else {
-      this._getCurrentPosition();
+      await this._getCurrentPosition();
+      await this._getWeather();
     }
   }
 
