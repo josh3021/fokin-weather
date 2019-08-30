@@ -6,16 +6,22 @@ import * as Permissions from "expo-permissions";
 import axios from "axios";
 
 import Loading from "./Loading";
+import Weather from "./Weather";
 import { api_key, units } from "./key.json";
 
 export default class App extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
+      isLoading: true,
       weather: null,
+      temp: null,
+      humidity: null,
+      temp_min: null,
+      temp_max: null,
       latitude: null,
       longitude: null,
-      errorMessage: null
+      message: "Loading Weather Data.."
     };
 
     this._requestPermissons = this._requestPermissons.bind(this);
@@ -27,7 +33,7 @@ export default class App extends React.Component {
     const { status } = await Permissions.askAsync(Permissions.LOCATION);
     if (status !== "granted") {
       this.setState({
-        errorMessage: "Permission to access location was denied"
+        message: "Permission to access location was denied"
       });
     }
 
@@ -51,13 +57,18 @@ export default class App extends React.Component {
         .then(
           ({
             data: {
-              weather: [{ description: weather }],
+              weather: [{ main: weather }],
               main: { temp, humidity, temp_min, temp_max }
             }
           }) => {
-            console.log(
-              `${weather}, ${temp}, ${humidity}, ${temp_min}, ${temp_max}`
-            );
+            this.setState({
+              isLoading: false,
+              weather,
+              temp,
+              humidity,
+              temp_min,
+              temp_max
+            });
           }
         );
     } catch (err) {
@@ -68,7 +79,7 @@ export default class App extends React.Component {
   async componentDidMount() {
     if (Platform.OS === "android" && !Constants.isDevice) {
       this.setState({
-        errorMessage:
+        message:
           "Oops, this will not work on Sketch in an Android emulator. Try it on your device!"
       });
     } else {
@@ -78,13 +89,26 @@ export default class App extends React.Component {
   }
 
   render() {
-    let text = "Waiting to Get Location...";
-    if (this.state.errorMessage) {
-      text = this.state.errorMessage;
-    } else if (this.state.latitude && this.state.longitude) {
-      text = `${this.state.latitude}, ${this.state.longitude}`;
-    }
-    // return <Loading text={text} />;
-    return <Loading text={text} />;
+    const {
+      isLoading,
+      message,
+      weather,
+      temp,
+      humidity,
+      temp_min,
+      temp_max
+    } = this.state;
+
+    return isLoading ? (
+      <Loading message={message} />
+    ) : (
+      <Weather
+        weather={weather}
+        temp={temp}
+        humidity={humidity}
+        temp_min={temp_min}
+        temp_max={temp_max}
+      />
+    );
   }
 }
