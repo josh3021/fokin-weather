@@ -16,5 +16,6 @@
     "Tornado",
     "Clear",
     "Clouds"
-  ]
+  ],
+  "icon_uri": "http://openweathermap.org/img/wn/"
 }

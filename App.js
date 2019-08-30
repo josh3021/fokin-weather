@@ -19,6 +19,7 @@ export default class App extends React.Component {
       humidity: null,
       temp_min: null,
       temp_max: null,
+      icon: null,
       latitude: null,
       longitude: null,
       message: "Loading Weather Data.."
@@ -50,27 +51,24 @@ export default class App extends React.Component {
 
   _getWeather = async () => {
     try {
-      axios
-        .get(
-          `https://api.openweathermap.org/data/2.5/weather?lat=${this.state.latitude}&lon=${this.state.longitude}&APPID=${api_key}&units=${units}`
-        )
-        .then(
-          ({
-            data: {
-              weather: [{ main: condition }],
-              main: { temp, humidity, temp_min, temp_max }
-            }
-          }) => {
-            this.setState({
-              isLoading: false,
-              condition,
-              temp: Math.round(temp),
-              humidity: Math.round(humidity),
-              temp_min: Math.round(temp_min),
-              temp_max: Math.round(temp_max)
-            });
-          }
-        );
+      const {
+        data: {
+          weather: [{ main: condition, icon }],
+          main: { temp, humidity, temp_min, temp_max }
+        }
+      } = await axios.get(
+        `https://api.openweathermap.org/data/2.5/weather?lat=${this.state.latitude}&lon=${this.state.longitude}&APPID=${api_key}&units=${units}`
+      );
+
+      this.setState({
+        isLoading: false,
+        condition,
+        icon,
+        temp: Math.round(temp),
+        humidity: Math.round(humidity),
+        temp_min: Math.round(temp_min),
+        temp_max: Math.round(temp_max)
+      });
     } catch (err) {
       console.error(err);
     }
@@ -93,6 +91,7 @@ export default class App extends React.Component {
       isLoading,
       message,
       condition,
+      icon,
       temp,
       humidity,
       temp_min,
@@ -104,6 +103,7 @@ export default class App extends React.Component {
     ) : (
       <Weather
         condition={condition}
+        icon={icon}
         temp={temp}
         humidity={humidity}
         temp_min={temp_min}
