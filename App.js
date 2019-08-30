@@ -14,7 +14,7 @@ export default class App extends React.Component {
     super(props);
     this.state = {
       isLoading: true,
-      weather: null,
+      condition: null,
       temp: null,
       humidity: null,
       temp_min: null,
@@ -57,17 +57,17 @@ export default class App extends React.Component {
         .then(
           ({
             data: {
-              weather: [{ main: weather }],
+              weather: [{ main: condition }],
               main: { temp, humidity, temp_min, temp_max }
             }
           }) => {
             this.setState({
               isLoading: false,
-              weather,
-              temp,
-              humidity,
-              temp_min,
-              temp_max
+              condition,
+              temp: Math.round(temp),
+              humidity: Math.round(humidity),
+              temp_min: Math.round(temp_min),
+              temp_max: Math.round(temp_max)
             });
           }
         );
@@ -92,7 +92,7 @@ export default class App extends React.Component {
     const {
       isLoading,
       message,
-      weather,
+      condition,
       temp,
       humidity,
       temp_min,
@@ -103,7 +103,7 @@ export default class App extends React.Component {
       <Loading message={message} />
     ) : (
       <Weather
-        weather={weather}
+        condition={condition}
         temp={temp}
         humidity={humidity}
         temp_min={temp_min}
