@@ -52,7 +52,7 @@ export default class App extends React.Component {
     try {
       axios
         .get(
-          `http://api.openweathermap.org/data/2.5/weather?lat=${this.state.latitude}&lon=${this.state.longitude}&APPID=${api_key}&units=${units}`
+          `https://api.openweathermap.org/data/2.5/weather?lat=${this.state.latitude}&lon=${this.state.longitude}&APPID=${api_key}&units=${units}`
         )
         .then(
           ({
